@@ -3,7 +3,6 @@ const statusText = document.getElementById('status-text');
 const chatContainer = document.getElementById('chat-container');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-const synthesis = window.speechSynthesis;
 
 if (!SpeechRecognition) {
     statusText.textContent = "متصفحك لا يدعم التعرف على الصوت، استخدم Google Chrome";
@@ -17,8 +16,6 @@ if (!SpeechRecognition) {
     let isListening = false;
 
     micBtn.addEventListener('click', () => {
-        // تفاعل إضافي لضمان تفعيل الصوت في المتصفح
-        unlockAudio();
         if (!isListening) {
             recognition.start();
         } else {
@@ -50,13 +47,6 @@ if (!SpeechRecognition) {
     };
 }
 
-function unlockAudio() {
-    if (synthesis) {
-        const dummy = new SpeechSynthesisUtterance("");
-        synthesis.speak(dummy);
-    }
-}
-
 function appendMessage(text, className) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${className}`;
@@ -66,7 +56,7 @@ function appendMessage(text, className) {
 }
 
 function processAriaResponse(input) {
-    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
+    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، يمكنني مساعدتك في معرفة مواعيد العمل، أماكن الأقسام، أو قواعد الاستعارة.";
     const query = input.toLowerCase();
 
     if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات')) {
@@ -95,21 +85,9 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
+// دالة نطق الصوت المضمونة عبر ResponsiveVoice
 function speakText(text) {
-    if (synthesis) {
-        synthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 1.0;
-        utterance.pitch = 1.1;
-        
-        // محاولة اختيار صوت عربي متاح تلقائياً
-        const voices = synthesis.getVoices();
-        const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
-        if (arabicVoice) {
-            utterance.voice = arabicVoice;
-        }
-
-        synthesis.speak(utterance);
+    if (typeof responsiveVoice !== "undefined") {
+        responsiveVoice.speak(text, "Arabic Female", {rate: 1.0});
     }
 }
