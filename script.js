@@ -16,6 +16,8 @@ if (!SpeechRecognition) {
     let isListening = false;
 
     micBtn.addEventListener('click', () => {
+        // تفاعل إجباري لفتح قناة الصوت في المتصفح
+        unlockAudio();
         if (!isListening) {
             recognition.start();
         } else {
@@ -47,6 +49,13 @@ if (!SpeechRecognition) {
     };
 }
 
+function unlockAudio() {
+    if ('speechSynthesis' in window) {
+        const dummy = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(dummy);
+    }
+}
+
 function appendMessage(text, className) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${className}`;
@@ -56,52 +65,58 @@ function appendMessage(text, className) {
 }
 
 function processAriaResponse(input) {
-    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم[cite: 1, 2, 3]. يمكنني مساعدتك في معرفة مواعيد العمل، أسماء الأخصائيين، القاعات، أو خطوات الاستعارة الإلكترونية[cite: 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19].";
+    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const q = input.toLowerCase();
 
-    // مواعيد العمل
-    if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('الساعة') || q.includes('متى')) {
-        reply = "تفتح المكتبة أبوابها يومياً من الساعة 8:45 صباحاً وحتى 1:45 ظهراً[cite: 1].";
+    // مواعيد العمل (مكتوبة بالحروف العربية تماماً لكي تنطق بالعربي الفصحى الصحيح)
+    if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('متى')) {
+        reply = "تفتح المكتبة أبوابها من الأحد إلى الخميس، من الساعة الثامنة إلا ربع صباحاً، وحتى الواحدة إلا ربع ظهراً.";
     } 
     // الاستعارة والإعارة
-    else if (q.includes('إعارة') || q.includes('استعارة') || q.includes('كتاب') || q.includes('كتب') || q.includes('أسبوع')) {
-        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي عبر موقع المكتبة[cite: 2, 3].";
+    else if (q.includes('إعارة') || q.includes('استعارة') || q.includes('كتاب') || q.includes('كتب')) {
+        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي.";
     } 
     // الأستاذة أسماء (مدني وإنتاج)
     else if (q.includes('مدني') || q.includes('إنتاج') || q.includes('أسماء')) {
-        reply = "في حالة السؤال عن كتب في قسم الهندسة المدنية أو قسم هندسة الإنتاج والتصميم، توجه إلى الأستاذة أسماء عبد الفتاح عرب[cite: 1, 6, 11].";
+        reply = "في حالة السؤال عن كتب في قسم الهندسة المدنية أو قسم هندسة الإنتاج والتصميم، توجه إلى الأستاذة أسماء عبد الفتاح عرب.";
     } 
     // الأستاذة رشا (كهربية وقوى)
     else if (q.includes('كهربية') || q.includes('قوى') || q.includes('رشا')) {
-        reply = "في حالة السؤال عن كتب في قسم الهندسة الكهربية أو قسم هندسة القوى الميكانيكية، توجه إلى الأستاذة رشا أحمد إبراهيم[cite: 1, 6, 10].";
+        reply = "في حالة السؤال عن كتب في قسم الهندسة الكهربية أو قسم هندسة القوى الميكانيكية، توجه إلى الأستاذة رشا أحمد إبراهيم.";
     } 
     // الأستاذة دينا (علوم أساسية، معمارية، رسائل)
     else if (q.includes('معمارية') || q.includes('علوم') || q.includes('رسائل') || q.includes('دينا')) {
-        reply = "في حالة السؤال عن كتب العلوم الأساسية، الرسائل العلمية، أو الهندسة المعمارية، توجه إلى الأستاذة دينا عبد الفتاح ناصف[cite: 1, 6, 9].";
+        reply = "في حالة السؤال عن كتب العلوم الأساسية، الرسائل العلمية، أو الهندسة المعمارية، توجه إلى الأستاذة دينا عبد الفتاح ناصف.";
     } 
     // المدير عفيفي
     else if (q.includes('مدير') || q.includes('عفيفي')) {
-        reply = "مدير إدارة مكتبة كلية الهندسة هو الأستاذ عفيفي محمد عوض[cite: 6, 13, 14].";
+        reply = "مدير إدارة مكتبة كلية الهندسة هو الأستاذ عفيفي محمد عوض.";
     } 
     // القاعات والأماكن
-    else if (q.includes('قاعة') || q.includes('قاعات') || q.includes('دور') || q.includes('أماكن') || q.includes('مساحة')) {
-        reply = "يوجد بالمكتبة قاعتين: قاعة بالدور الأرضي لقسم قوة ميكانيكية وتحتوي على العلوم الأساسية والمعمارية والرسائل، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى[cite: 1, 7].";
-    }
-    // الموقع والرابط
-    else if (q.includes('موقع') || q.includes('رابط') || q.includes('إلكتروني')) {
-        reply = "يمكنك زيارة موقع المكتبة عبر الرابط الرسمي المتاح على بوابة الكلية أو موقع الاستعارة عن بعد[cite: 2, 3, 5].";
+    else if (q.includes('قاعة') || q.includes('قاعات') || q.includes('دور') || q.includes('أماكن')) {
+        reply = "يوجد بالمكتبة قاعتان: قاعة بالدور الأرضي بقسم قوة ميكانيكية، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى.";
     }
 
     appendMessage(reply, 'aria-message');
     speakText(reply);
 }
 
+// دالة نطق تعتمد على المتصفح الداخلي مباشرة وبدون أخطاء
 function speakText(text) {
-    if (typeof responsiveVoice !== "undefined") {
-        responsiveVoice.speak(text, "Arabic Female", { rate: 1.0 });
-    } else {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ar-SA';
+        utterance.rate = 0.95; // سرعة هادئة وواضحة
+        utterance.pitch = 1.0;
+        
+        // محاولة اختيار صوت عربي أنثوي إن وجد
+        const voices = window.speechSynthesis.getVoices();
+        const arabicVoice = voices.find(v => v.lang.includes('ar') || v.lang.includes('AR'));
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+
         window.speechSynthesis.speak(utterance);
     }
 }
