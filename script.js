@@ -17,6 +17,8 @@ if (!SpeechRecognition) {
     let isListening = false;
 
     micBtn.addEventListener('click', () => {
+        // تفاعل إضافي لضمان تفعيل الصوت في المتصفح
+        unlockAudio();
         if (!isListening) {
             recognition.start();
         } else {
@@ -48,6 +50,13 @@ if (!SpeechRecognition) {
     };
 }
 
+function unlockAudio() {
+    if (synthesis) {
+        const dummy = new SpeechSynthesisUtterance("");
+        synthesis.speak(dummy);
+    }
+}
+
 function appendMessage(text, className) {
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${className}`;
@@ -56,17 +65,15 @@ function appendMessage(text, className) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
-// عقلية آريا والردود المبنية على ملفات مكتبة كلية الهندسة بشبين الكوم
 function processAriaResponse(input) {
-    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، يمكنني مساعدتك في معرفة مواعيد العمل، أماكن الأقسام، أسماء المختصين، أو قواعد الاستعارة الإلكترونية. يرجى توضيح سؤالك.";
-    
+    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const query = input.toLowerCase();
 
-    if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات') || query.includes('غلق')) {
-        reply = "تفتح المكتبة أبوابها يومياً من الساعة الثامنة إلا ربع صباحاً (8:45) وحتى الواحدة إلا ربع ظهراً (1:45).";
+    if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات')) {
+        reply = "تفتح المكتبة أبوابها يومياً من الساعة الثامنة إلا ربع صباحاً وحتى الواحدة إلا ربع ظهراً.";
     } 
-    else if (query.includes('إعارة') || query.includes('استعارة') || query.includes('كتاب') || query.includes('أسبوع')) {
-        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي عبر موقع المكتبة الرقمي.";
+    else if (query.includes('إعارة') || query.includes('استعارة') || query.includes('كتاب')) {
+        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي.";
     } 
     else if (query.includes('مدنية') || query.includes('إنتاج') || query.includes('أسماء')) {
         reply = "في حالة السؤال عن كتب في قسم الهندسة المدنية أو قسم هندسة الإنتاج والتصميم، توجه إلى الأستاذة أسماء عبد الفتاح عرب.";
@@ -80,14 +87,8 @@ function processAriaResponse(input) {
     else if (query.includes('مدير') || query.includes('عفيفي')) {
         reply = "مدير إدارة مكتبة كلية الهندسة هو الأستاذ عفيفي محمد عوض.";
     } 
-    else if (query.includes('قاعات') || query.includes('دور') || query.includes('أماكن')) {
-        reply = "يوجد بالمكتبة قاعتان: قاعة بالدور الأرضي بقسم قوة ميكانيكية للعلوم الأساسية والمعمارية والرسائل، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى.";
-    } 
-    else if (query.includes('موقع') || query.includes('رابط') || query.includes('إلكترونية')) {
-        reply = "يمكنك زيارة موقع المكتبة الإلكتروني أو استخدام خدمة الاستعارة عن بعد عبر بوابة مكتبة كلية الهندسة بشبين الكوم الرقمية.";
-    }
-    else if (query.includes('السلام') || query.includes('مرحباً') || query.includes('أهلاً') || query.includes('صباح')) {
-        reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم! أنا آريا، كيف يمكنني خدمتك اليوم؟";
+    else if (query.includes('قاعات') || query.includes('دور')) {
+        reply = "يوجد بالمكتبة قاعتان: قاعة بالدور الأرضي بقسم قوة ميكانيكية، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى.";
     }
 
     appendMessage(reply, 'aria-message');
@@ -101,6 +102,14 @@ function speakText(text) {
         utterance.lang = 'ar-SA';
         utterance.rate = 1.0;
         utterance.pitch = 1.1;
+        
+        // محاولة اختيار صوت عربي متاح تلقائياً
+        const voices = synthesis.getVoices();
+        const arabicVoice = voices.find(v => v.lang.startsWith('ar'));
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+
         synthesis.speak(utterance);
     }
 }
