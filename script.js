@@ -59,11 +59,11 @@ function processAriaResponse(input) {
     let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const query = input.toLowerCase();
 
-    if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات')) {
-        reply = "تفتح المكتبة أبوابها يومياً من الساعة الثامنة إلا ربع صباحاً وحتى الواحدة إلا ربع ظهراً.";
+    if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات') || query.includes('غلق')) {
+        reply = "تفتح المكتبة أبوابها من الأحد إلى الخميس من الساعة الثامنة إلا ربع صباحاً (8:45) وحتى الواحدة إلا ربع ظهراً (1:45).";
     } 
-    else if (query.includes('إعارة') || query.includes('استعارة') || query.includes('كتاب')) {
-        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي.";
+    else if (query.includes('إعارة') || query.includes('استعارة') || query.includes('كتاب') || query.includes('أسبوع')) {
+        reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي عبر موقع المكتبة الرقمي.";
     } 
     else if (query.includes('مدنية') || query.includes('إنتاج') || query.includes('أسماء')) {
         reply = "في حالة السؤال عن كتب في قسم الهندسة المدنية أو قسم هندسة الإنتاج والتصميم، توجه إلى الأستاذة أسماء عبد الفتاح عرب.";
@@ -77,7 +77,7 @@ function processAriaResponse(input) {
     else if (query.includes('مدير') || query.includes('عفيفي')) {
         reply = "مدير إدارة مكتبة كلية الهندسة هو الأستاذ عفيفي محمد عوض.";
     } 
-    else if (query.includes('قاعات') || query.includes('دور')) {
+    else if (query.includes('قاعات') || query.includes('دور') || query.includes('أماكن')) {
         reply = "يوجد بالمكتبة قاعتان: قاعة بالدور الأرضي بقسم قوة ميكانيكية، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى.";
     }
 
@@ -85,16 +85,10 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// استخدام طريقة الويب القياسية المباشرة للنطق عبر ResponsiveVoice مع التحقق من التفعيل
 function speakText(text) {
     if (typeof responsiveVoice !== "undefined") {
-        responsiveVoice.speak(text, "Arabic Female", {
-            rate: 1.0,
-            onstart: function() { console.log("بدأ التحدث"); },
-            onend: function() { console.log("انتهى التحدث"); }
-        });
+        responsiveVoice.speak(text, "Arabic Female", { rate: 1.0 });
     } else {
-        // بديل احتياطي في حال لم تحمل المكتبة، استخدام نطق المتصفح الداخلي
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ar-SA';
         window.speechSynthesis.speak(utterance);
