@@ -56,7 +56,7 @@ function appendMessage(text, className) {
 }
 
 function processAriaResponse(input) {
-    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، يمكنني مساعدتك في معرفة مواعيد العمل، أماكن الأقسام، أو قواعد الاستعارة.";
+    let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const query = input.toLowerCase();
 
     if (query.includes('مواعيد') || query.includes('وقت') || query.includes('تفتح') || query.includes('ساعات')) {
@@ -85,9 +85,18 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// دالة نطق الصوت المضمونة عبر ResponsiveVoice
+// استخدام طريقة الويب القياسية المباشرة للنطق عبر ResponsiveVoice مع التحقق من التفعيل
 function speakText(text) {
     if (typeof responsiveVoice !== "undefined") {
-        responsiveVoice.speak(text, "Arabic Female", {rate: 1.0});
+        responsiveVoice.speak(text, "Arabic Female", {
+            rate: 1.0,
+            onstart: function() { console.log("بدأ التحدث"); },
+            onend: function() { console.log("انتهى التحدث"); }
+        });
+    } else {
+        // بديل احتياطي في حال لم تحمل المكتبة، استخدام نطق المتصفح الداخلي
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ar-SA';
+        window.speechSynthesis.speak(utterance);
     }
 }
