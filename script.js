@@ -4,6 +4,13 @@ const chatContainer = document.getElementById('chat-container');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+// ضمان تحميل الأصوات في المتصفح
+if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+    };
+}
+
 if (!SpeechRecognition) {
     statusText.textContent = "متصفحك لا يدعم التعرف على الصوت، استخدم Google Chrome";
     micBtn.disabled = true;
@@ -68,7 +75,7 @@ function processAriaResponse(input) {
     let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const q = input.toLowerCase();
 
-    // مواعيد العمل (مكتوبة بالحروف العربية تماماً لكي تنطق بالعربي الفصحى الصحيح)
+    // مواعيد العمل
     if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('متى')) {
         reply = "تفتح المكتبة أبوابها من الأحد إلى الخميس، من الساعة الثامنة إلا ربع صباحاً، وحتى الواحدة إلا ربع ظهراً.";
     } 
@@ -101,16 +108,15 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// دالة نطق تعتمد على المتصفح الداخلي مباشرة وبدون أخطاء
+// دالة النطق المحدثة
 function speakText(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ar-SA';
-        utterance.rate = 0.95; // سرعة هادئة وواضحة
+        utterance.rate = 0.95; 
         utterance.pitch = 1.0;
         
-        // محاولة اختيار صوت عربي أنثوي إن وجد
         const voices = window.speechSynthesis.getVoices();
         const arabicVoice = voices.find(v => v.lang.includes('ar') || v.lang.includes('AR'));
         if (arabicVoice) {
