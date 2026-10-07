@@ -16,9 +16,9 @@ if (!SpeechRecognition) {
     let isListening = false;
 
     micBtn.addEventListener('click', () => {
-        // فتح قناة الصوت في المتصفح عند الضغط
+        // تفعيل الصوت وإلغاء أي نطق قديم عند الضغط
         if ('speechSynthesis' in window) {
-            window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+            window.speechSynthesis.cancel();
         }
 
         if (!isListening) {
@@ -72,35 +72,39 @@ function processAriaResponse(input) {
     let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const q = input.toLowerCase();
 
-    // التعريف بآريا
-    if (q.includes('دورك') || q.includes('انت مين') || q.includes('مين انت') || q.includes('وظيفتك') || q.includes('مين')) {
+    // 1. التحية والسؤال عن الحال أو السؤال العام
+    if (q.includes('ازيك') || q.includes('كيفك') || q.includes('اخبارك') || q.includes('عامل ايه') || q.includes('عامل إيه')) {
+        reply = "الحمد لله أنا بخير! أنا مسؤولة الاستقبال هنا، اسألني عن مواعيد المكتبة، أو الأقسام، أو شروط الاستعارة.";
+    }
+    // 2. التعريف بآريا
+    else if (q.includes('دورك') || q.includes('انت مين') || q.includes('مين انت') || q.includes('وظيفتك') || q.includes('مين') || q.includes('اسمك')) {
         reply = "أنا آريا، مسؤولة الاستقبال الذكية في مكتبة كلية الهندسة بشبين الكوم، ومهمتي هي مساعدتك في معرفة مواعيد المكتبة، أماكن الأقسام، وإجراءات الإعارة.";
     }
-    // مواعيد العمل
+    // 3. مواعيد العمل
     else if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('متى')) {
         reply = "تفتح المكتبة أبوابها من الأحد إلى الخميس، من الساعة الثامنة إلا ربع صباحاً، وحتى الواحدة إلا ربع ظهراً.";
     } 
-    // الاستعارة والإعارة
+    // 4. الاستعارة والإعارة
     else if (q.includes('إعارة') || q.includes('استعارة') || q.includes('كتاب') || q.includes('كتب')) {
         reply = "مدة الاستعارة الإلكترونية أسبوع قابل للتجديد، وعدد الكتب المسموح بإعارتها كتاب واحد أسبوعياً من خلال الإيميل الأكاديمي.";
     } 
-    // الأستاذة أسماء (مدني وإنتاج)
+    // 5. الأستاذة أسماء (مدني وإنتاج)
     else if (q.includes('مدني') || q.includes('إنتاج') || q.includes('أسماء')) {
         reply = "في حالة السؤال عن كتب في قسم الهندسة المدنية أو قسم هندسة الإنتاج والتصميم، توجه إلى الأستاذة أسماء عبد الفتاح عرب.";
     } 
-    // الأستاذة رشا (كهربية وقوى)
+    // 6. الأستاذة رشا (كهربية وقوى)
     else if (q.includes('كهربية') || q.includes('قوى') || q.includes('رشا')) {
         reply = "في حالة السؤال عن كتب في قسم الهندسة الكهربية أو قسم هندسة القوى الميكانيكية، توجه إلى الأستاذة رشا أحمد إبراهيم.";
     } 
-    // الأستاذة دينا (علوم أساسية، معمارية، رسائل)
+    // 7. الأستاذة دينا (علوم أساسية، معمارية، رسائل)
     else if (q.includes('معمارية') || q.includes('علوم') || q.includes('رسائل') || q.includes('دينا')) {
         reply = "في حالة السؤال عن كتب العلوم الأساسية، الرسائل العلمية، أو الهندسة المعمارية، توجه إلى الأستاذة دينا عبد الفتاح ناصف.";
     } 
-    // المدير عفيفي
+    // 8. المدير عفيفي
     else if (q.includes('مدير') || q.includes('عفيفي')) {
         reply = "مدير إدارة مكتبة كلية الهندسة هو الأستاذ عفيفي محمد عوض.";
     } 
-    // القاعات والأماكن
+    // 9. القاعات والأماكن
     else if (q.includes('قاعة') || q.includes('قاعات') || q.includes('دور') || q.includes('أماكن')) {
         reply = "يوجد بالمكتبة قاعتان: قاعة بالدور الأرضي بقسم قوة ميكانيكية، والقاعة الرئيسية بالدور الأول العلوي للأقسام الهندسية الأخرى.";
     }
@@ -109,14 +113,23 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// دالة نطق موثوقة
+// دالة النطق المباشرة والمدعومة من المتصفح
 function speakText(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
+        
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ar-SA';
-        utterance.rate = 1.0;
+        utterance.rate = 0.95; 
         utterance.pitch = 1.0;
+
+        // محاولة اختيار صوت عربي تلقائياً إن وجد في المتصفح
+        const voices = window.speechSynthesis.getVoices();
+        const arabicVoice = voices.find(v => v.lang.includes('ar') || v.lang.includes('AR'));
+        if (arabicVoice) {
+            utterance.voice = arabicVoice;
+        }
+
         window.speechSynthesis.speak(utterance);
     }
 }
