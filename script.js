@@ -4,13 +4,6 @@ const chatContainer = document.getElementById('chat-container');
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-// ضمان تحميل الأصوات في المتصفح
-if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-    };
-}
-
 if (!SpeechRecognition) {
     statusText.textContent = "متصفحك لا يدعم التعرف على الصوت، استخدم Google Chrome";
     micBtn.disabled = true;
@@ -23,10 +16,17 @@ if (!SpeechRecognition) {
     let isListening = false;
 
     micBtn.addEventListener('click', () => {
-        // تفاعل إجباري لفتح قناة الصوت في المتصفح
-        unlockAudio();
+        // فتح قناة الصوت في المتصفح عند الضغط
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.speak(new SpeechSynthesisUtterance(""));
+        }
+
         if (!isListening) {
-            recognition.start();
+            try {
+                recognition.start();
+            } catch (e) {
+                console.log(e);
+            }
         } else {
             recognition.stop();
         }
@@ -45,8 +45,12 @@ if (!SpeechRecognition) {
     };
 
     recognition.onerror = (event) => {
-        console.error(event.error);
-        statusText.textContent = "حدث خطأ في التعرف على الصوت، حاول مجدداً.";
+        console.error("خطأ التعرف الصوتي:", event.error);
+        if (event.error === 'no-speech') {
+            statusText.textContent = "لم يتم رصد صوت، حاول مرة أخرى.";
+        } else {
+            statusText.textContent = "حدث خطأ، حاول مجدداً.";
+        }
     };
 
     recognition.onend = () => {
@@ -54,13 +58,6 @@ if (!SpeechRecognition) {
         micBtn.classList.remove('listening');
         statusText.textContent = "اضغط للتحدث";
     };
-}
-
-function unlockAudio() {
-    if ('speechSynthesis' in window) {
-        const dummy = new SpeechSynthesisUtterance("");
-        window.speechSynthesis.speak(dummy);
-    }
 }
 
 function appendMessage(text, className) {
@@ -75,7 +72,7 @@ function processAriaResponse(input) {
     let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const q = input.toLowerCase();
 
-    // التعريف بآريا أو دورها (تم إضافتها وتعديلها لتلتقط أي صيغة للسؤال)
+    // التعريف بآريا
     if (q.includes('دورك') || q.includes('انت مين') || q.includes('مين انت') || q.includes('وظيفتك') || q.includes('مين')) {
         reply = "أنا آريا، مسؤولة الاستقبال الذكية في مكتبة كلية الهندسة بشبين الكوم، ومهمتي هي مساعدتك في معرفة مواعيد المكتبة، أماكن الأقسام، وإجراءات الإعارة.";
     }
@@ -112,21 +109,14 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// دالة النطق الصوتي
+// دالة نطق موثوقة
 function speakText(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ar-SA';
-        utterance.rate = 0.95; 
+        utterance.rate = 1.0;
         utterance.pitch = 1.0;
-        
-        const voices = window.speechSynthesis.getVoices();
-        const arabicVoice = voices.find(v => v.lang.includes('ar') || v.lang.includes('AR'));
-        if (arabicVoice) {
-            utterance.voice = arabicVoice;
-        }
-
         window.speechSynthesis.speak(utterance);
     }
 }
