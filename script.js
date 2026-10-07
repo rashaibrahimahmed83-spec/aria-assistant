@@ -75,8 +75,12 @@ function processAriaResponse(input) {
     let reply = "أهلاً بك في مكتبة كلية الهندسة بشبين الكوم. بصفتي مسؤولة الاستقبال، كيف يمكنني مساعدتك اليوم؟";
     const q = input.toLowerCase();
 
+    // التعريف بآريا أو دورها (تم إضافتها وتعديلها لتلتقط أي صيغة للسؤال)
+    if (q.includes('دورك') || q.includes('انت مين') || q.includes('مين انت') || q.includes('وظيفتك') || q.includes('مين')) {
+        reply = "أنا آريا، مسؤولة الاستقبال الذكية في مكتبة كلية الهندسة بشبين الكوم، ومهمتي هي مساعدتك في معرفة مواعيد المكتبة، أماكن الأقسام، وإجراءات الإعارة.";
+    }
     // مواعيد العمل
-    if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('متى')) {
+    else if (q.includes('مواعيد') || q.includes('وقت') || q.includes('ساعات') || q.includes('تفتح') || q.includes('تغلق') || q.includes('متى')) {
         reply = "تفتح المكتبة أبوابها من الأحد إلى الخميس، من الساعة الثامنة إلا ربع صباحاً، وحتى الواحدة إلا ربع ظهراً.";
     } 
     // الاستعارة والإعارة
@@ -108,7 +112,7 @@ function processAriaResponse(input) {
     speakText(reply);
 }
 
-// دالة النطق المحدثة
+// دالة النطق الصوتي
 function speakText(text) {
     if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
